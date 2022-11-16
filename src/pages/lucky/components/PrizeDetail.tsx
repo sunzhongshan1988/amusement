@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React from 'react';
 import style from './PrizeDetail.module.scss'
 import qrcode from '../images/qrcode.png'
 import {IonButtons,IonButton, IonContent, IonIcon, IonToolbar} from '@ionic/react';

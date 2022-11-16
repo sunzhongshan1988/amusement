@@ -1,5 +1,7 @@
+import React from 'react';
+
 export const LuckyDemo = {
-  name: 'Lucky Wheel',
+  name: 'LuckyWheel',
   baseSize: 375,
   home: {
     background: {
@@ -32,60 +34,14 @@ export const LuckyDemo = {
     wheel: {
       top: 200,
       left: 37.5,
-      width:300,
+      width: 300,
       height: 300,
-      prizes: [
-          {
-            range: [],
-            background: '#fd5013',
-            imgs: [
-              {
-                src: 'https://static.qunkong.jniu.com/test-frontend/lucky-wheel/noPrize.png',
-                top: '20%',
-                width: '30%',
-              }
-            ],
-          },
-          {
-            range: [],
-            background: '#fdd300',
-            imgs: [
-              {
-                src: 'https://static.qunkong.jniu.com/test-frontend/lucky-wheel/prize.png',
-                top: '20%',
-                width: '30%',
-              }
-            ],
-          },
-          {
-            range: [],
-            background: '#fd5013',
-            imgs: [
-              {
-                src: 'https://static.qunkong.jniu.com/test-frontend/lucky-wheel/noPrize.png',
-                top: '20%',
-                width: '30%',
-              }
-            ],
-          },
-          {
-            range: [],
-            background: '#fdd300',
-            imgs: [
-              {
-                src: 'https://static.qunkong.jniu.com/test-frontend/lucky-wheel/prize.png',
-                top: '20%',
-                width: '30%',
-              }
-            ],
-          },
-        ],
+      prizes: [],
       blocks: [{
         padding: '18px',
-        background: '#ffffff00',
         imgs: [
           {
-            src: 'https://static.qunkong.jniu.com/test-frontend/lucky-wheel/wheelBackground.png',
+            src: 'https://static.qunkong.jniu.com/work-weixin/static/636cbeb1e4b0183cab17dea4.png?x-oss-process=image/crop,x_78,y_89,w_1811,h_1811',
             width: '100%',
             rotate: true,
           }
@@ -104,7 +60,34 @@ export const LuckyDemo = {
       defaultConfig: {
         gutter: 0
       },
+      defaultStyle: {
+        background: '#e9e8fe'
+      },
       extraConfig: {
+        noPrize: {
+          range: [],
+          noPrize: true,
+          imgs: [
+            {
+              src: 'https://static.qunkong.jniu.com/test-frontend/lucky-wheel/noPrize.png',
+              top: '15%',
+              width: '50%',
+            }
+          ],
+        },
+        prizes: [
+          {
+            range: [],
+            noPrize: false,
+            imgs: [
+              {
+                src: 'https://static.qunkong.jniu.com/test-frontend/lucky-wheel/prize.png',
+                top: '15%',
+                width: '50%',
+              }
+            ],
+          },
+        ],
         gameStart: {
           audio: 'https://static.qunkong.jniu.com/test-frontend/lucky-wheel/game-roll-01.wav'
         },
@@ -114,7 +97,7 @@ export const LuckyDemo = {
       }
     },
     participant: {
-      top: 540,
+      top: 520,
       left: 0,
       width: 375,
       height: 40,
@@ -141,3 +124,4 @@ export const LuckyDemo = {
     share: {},
   }
 }
+export const LuckySchemaContext: any = React.createContext({});

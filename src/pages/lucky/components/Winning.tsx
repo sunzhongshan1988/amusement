@@ -1,7 +1,7 @@
-import React, {useRef} from 'react';
+import React from 'react';
 import style from './Winning.module.scss';
 import { closeOutline } from 'ionicons/icons';
-import {IonContent, IonIcon, IonModal} from '@ionic/react';
+import {IonIcon} from '@ionic/react';
 const Winning =  ({onDismiss,}: {
     onDismiss: (data?: string | null | undefined | number, role?: string) => void;
 }) => {

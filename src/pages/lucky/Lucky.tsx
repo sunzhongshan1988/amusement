@@ -1,14 +1,17 @@
-import {IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonModal} from '@ionic/react';
+import {IonContent, IonPage, useIonModal, useIonViewWillEnter} from '@ionic/react';
 import style from './Lucky.module.scss';
 // @ts-ignore
 import {LuckyWheel} from '@lucky-canvas/react'
 import React, {useRef, useState} from 'react';
-import {LuckyDemo} from './schema';
+import {LuckyDemo, LuckySchemaContext} from './schema';
 import RulePrize from './components/RulePrize';
 import Winning from './components/Winning';
 import {OverlayEventDetail} from '@ionic/react/dist/types/components/react-component-lib/interfaces';
 import PrizeDetail from './components/PrizeDetail';
 import Fail from './components/Fail';
+import {luckyWheelGet} from '../../service/lucky';
+import {useQuery} from '../../hooks';
+
 
 //
 interface Props {
@@ -16,13 +19,13 @@ interface Props {
     onWinning: () => void;
     onFail: () => void;
 }
-const WheelContext = React.createContext<any>({})
+
 const Wheel: React.FC<Props> = (props) => {
-    const wheelContext  = React.useContext(WheelContext);
+    const {lucky, setLucky} = React.useContext<any>(LuckySchemaContext);
     const myLucky = useRef<any>()
 
-    const startAudio = new Audio(wheelContext.extraConfig.gameStart.audio);
-    const endAudio = new Audio(wheelContext.extraConfig.gameEnd.audio);
+    const startAudio = new Audio(lucky.home.wheel.extraConfig.gameStart.audio);
+    const endAudio = new Audio(lucky.home.wheel.extraConfig.gameEnd.audio);
     const startAudioStop = () => {
         startAudio.pause();
         startAudio.currentTime = 0;
@@ -31,6 +34,7 @@ const Wheel: React.FC<Props> = (props) => {
     React.useEffect(() => {
         startAudio.load();
         endAudio.load();
+
     }, [])
 
     const onStart = () => { // 点击抽奖按钮会触发star回调
@@ -54,12 +58,12 @@ const Wheel: React.FC<Props> = (props) => {
         <div>
             <LuckyWheel
                 ref={myLucky}
-                width={wheelContext.width * props.zoomRate}
-                height={wheelContext.height * props.zoomRate}
-                blocks={wheelContext.blocks}
-                prizes={wheelContext.prizes}
-                buttons={wheelContext.buttons}
-                defaultConfig={wheelContext.defaultConfig}
+                width={lucky.home.wheel.width * props.zoomRate}
+                height={lucky.home.wheel.height * props.zoomRate}
+                blocks={lucky.home.wheel.blocks}
+                prizes={lucky.home.wheel.prizes}
+                buttons={lucky.home.wheel.buttons}
+                defaultConfig={lucky.home.wheel.defaultConfig}
                 onStart={onStart}
                 onEnd={onEnd}
             />
@@ -68,16 +72,30 @@ const Wheel: React.FC<Props> = (props) => {
 }
 
 const Lucky: React.FC = () => {
-    const [lucky, setLucky] = React.useState<any>(LuckyDemo)
+    const LuckySchemaInstance = JSON.parse(JSON.stringify(LuckyDemo))
+    const [lucky, setLucky] = React.useState<any>(LuckySchemaInstance)
+
     const [zoomRate, setZoomRate] = React.useState(window.innerWidth / lucky.baseSize);
     const [maxHeight, setMaxHeight] = React.useState(window.innerHeight);
 
     // Audio
     const [isPlaying, setIsPlaying] = React.useState(false);
     const bgAudio = new Audio(lucky.home.background.music.src);
+
+    let params = useQuery();
     React.useEffect(() => {
-        document.title = lucky.name;
+      document.title = lucky.name;
     }, [])
+
+  useIonViewWillEnter(() => {
+    if (params.get('amusementId')) {
+      luckyWheelGet({id: params.get('amusementId')}).then((res: any) => {
+        setLucky(res.data.model);
+        document.title = res.data.title;
+      })
+    }
+  });
+
     const playBgAudio = async () => {
         await bgAudio.play();
         setIsPlaying(true);
@@ -172,6 +190,7 @@ const Lucky: React.FC = () => {
 
     return (
         <IonPage>
+          <LuckySchemaContext.Provider value={{lucky, setLucky}}>
             <audio id="myaudio" src={lucky.home.background.music.src}
                    autoPlay loop={true} hidden={true}>
             </audio>
@@ -217,13 +236,11 @@ const Lucky: React.FC = () => {
                             left: lucky.home.wheel.left * zoomRate,
                         }}
                     >
-                        <WheelContext.Provider value={lucky.home.wheel}>
-                            <Wheel
-                                zoomRate={zoomRate}
-                                onWinning={openWinning}
-                                onFail={openFail}
-                            />
-                        </WheelContext.Provider>
+                      <Wheel
+                          zoomRate={zoomRate}
+                          onWinning={openWinning}
+                          onFail={openFail}
+                      />
                     </div>
                     <div // My prizes
                         onClick={() => openRulePrize('prize')}
@@ -253,6 +270,7 @@ const Lucky: React.FC = () => {
                     </div>
                 </div>
             </IonContent>
+          </LuckySchemaContext.Provider>
         </IonPage>
     );
 };

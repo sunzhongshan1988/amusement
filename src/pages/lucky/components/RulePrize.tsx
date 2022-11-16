@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   IonContent,
   IonIcon,
@@ -80,11 +80,11 @@ const RulePrize =  ({onDismiss, switchTab, tabName}: {
               <div className={style.tab}>
                 <span
                     onClick={() => switchTab('rule')}
-                    className={tabName == 'rule' ? style.active : ''}
+                    className={tabName === 'rule' ? style.active : ''}
                 >活动说明</span>
                 <span
                     onClick={() => switchTab('prize')}
-                    className={`${style.space} ${tabName == 'prize' ? style.active : ''}`}
+                    className={`${style.space} ${tabName === 'prize' ? style.active : ''}`}
                 >我的奖品</span>
               </div>
               {blocks}
