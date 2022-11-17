@@ -24,6 +24,8 @@ const Wheel: React.FC<Props> = (props) => {
     const {lucky, setLucky} = React.useContext<any>(LuckySchemaContext);
     const myLucky = useRef<any>()
 
+  const query = useQuery();
+
     const startAudio = new Audio(lucky.home.wheel.extraConfig.gameStart.audio);
     const endAudio = new Audio(lucky.home.wheel.extraConfig.gameEnd.audio);
     const startAudioStop = () => {
@@ -42,7 +44,7 @@ const Wheel: React.FC<Props> = (props) => {
       // Play start audio
       startAudio.play()
 
-      luckyWheelPlay({}).then((res) => {
+      luckyWheelPlay({id: query.get('amusementId')}).then((res) => {
         console.log(res)
       })
 
@@ -243,9 +245,9 @@ const Lucky: React.FC = () => {
                         }}
                     >
                       <Wheel
-                          zoomRate={zoomRate}
-                          onWinning={openWinning}
-                          onFail={openFail}
+                        zoomRate={zoomRate}
+                        onWinning={openWinning}
+                        onFail={openFail}
                       />
                     </div>
                     <div // My prizes
