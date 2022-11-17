@@ -133,19 +133,18 @@ const Lucky: React.FC = () => {
     });
 
     React.useEffect(() => {
-        window.addEventListener('resize', resizeHandle);
-        resizeWheelPadding();
-        setMaxHeight(getMaxHeight() as number)
-        return () => {
-            window.removeEventListener('resize', resizeHandle)
-        }
-    }, [zoomRate])
+      window.addEventListener('resize', resizeHandle);
+      return () => {
+          window.removeEventListener('resize', resizeHandle)
+      }
+    }, [])
 
     // Handle the change of window size,
     // this is just to observe the page effect under different devices.
     const resizeHandle = () => {
-        setZoomRate(window.innerWidth / lucky.baseSize);
-        resizeWheelPadding()
+      setZoomRate(window.innerWidth / lucky.baseSize);
+      resizeWheelPadding()
+      setMaxHeight(getMaxHeight() as number)
     }
     const resizeWheelPadding = () => {
         lucky.home.wheel.blocks.forEach((block: any) => {
