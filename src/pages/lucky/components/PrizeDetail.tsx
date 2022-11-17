@@ -6,10 +6,11 @@ import {closeOutline} from 'ionicons/icons';
 const PrizeDetail = ({onDismiss,}: {
   onDismiss: (data?: string | null | undefined | number, role?: string) => void;
 }) => {
+
   return (
         <IonContent>
           <IonToolbar id={style.toolBar}>
-            <IonButtons slot="start">
+            <IonButtons slot="end">
               <IonButton onClick={() => onDismiss(null, 'cancel')}>
                 <IonIcon slot="icon-only" icon={closeOutline} />
               </IonButton>
@@ -27,16 +28,21 @@ const PrizeDetail = ({onDismiss,}: {
               <div className={style.title}>兑奖详情</div>
               <div className={style.item}>
                 <div className={style.name}>兑奖码</div>
-                <div className={style.content}>***********</div>
+                <div className={style.content}>✱✱✱✱✱✱</div>
               </div>
               <div className={style.item}>
-                <div style={{textAlign:'center'}}>
+                <div className={style.name}></div>
+                <div className={style.content}>
                   <img src={qrcode} alt=""/>
                 </div>
               </div>
               <div className={style.item}>
                 <div className={style.name}>兑奖期限</div>
                 <div className={style.content}>2022-08-02 11:24 至 2022-08-09 11:24</div>
+              </div>
+              <div className={style.item}>
+                <div className={style.name}>兑奖地址</div>
+                <div className={style.content}>上海时区</div>
               </div>
               <div className={style.item}>
                 <div className={style.name}>兑奖须知</div>

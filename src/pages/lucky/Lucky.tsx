@@ -9,7 +9,7 @@ import Winning from './components/Winning';
 import {OverlayEventDetail} from '@ionic/react/dist/types/components/react-component-lib/interfaces';
 import PrizeDetail from './components/PrizeDetail';
 import Fail from './components/Fail';
-import {luckyWheelGet} from '../../service/lucky';
+import {luckyWheelGet, luckyWheelPlay} from '../../service/lucky';
 import {useQuery} from '../../hooks';
 
 
@@ -38,13 +38,18 @@ const Wheel: React.FC<Props> = (props) => {
     }, [])
 
     const onStart = () => { // 点击抽奖按钮会触发star回调
-        myLucky.current?.play()
-        // Play start audio
-        startAudio.play()
-        setTimeout(() => {
-            const index = Math.random() * 4 >> 0
-            myLucky.current?.stop(index)
-        }, 2500)
+      myLucky.current?.play()
+      // Play start audio
+      startAudio.play()
+
+      luckyWheelPlay({}).then((res) => {
+        console.log(res)
+      })
+
+      setTimeout(() => {
+          const index = Math.random() * 4 >> 0
+          myLucky.current?.stop(index)
+      }, 2500)
     }
     const onEnd = (prize: any) => { // 抽奖结束会触发end回调
        Math.random() > 0.5
@@ -75,6 +80,8 @@ const Lucky: React.FC = () => {
     const LuckySchemaInstance = JSON.parse(JSON.stringify(LuckyDemo))
     const [lucky, setLucky] = React.useState<any>(LuckySchemaInstance)
 
+  const [luckyData, setLuckyData] = useState<any>({})
+
     const [zoomRate, setZoomRate] = React.useState(window.innerWidth / lucky.baseSize);
     const [maxHeight, setMaxHeight] = React.useState(window.innerHeight);
 
@@ -84,7 +91,7 @@ const Lucky: React.FC = () => {
 
     let params = useQuery();
     React.useEffect(() => {
-      document.title = lucky.name;
+
     }, [])
 
   useIonViewWillEnter(() => {
@@ -92,6 +99,7 @@ const Lucky: React.FC = () => {
       luckyWheelGet({id: params.get('amusementId')}).then((res: any) => {
         setLucky(res.data.model);
         document.title = res.data.title;
+        setLuckyData(res.data)
       })
     }
   });
@@ -109,9 +117,10 @@ const Lucky: React.FC = () => {
     // Lucky wheel modal
     const [tabName, setTabName] = useState('');
     const [rulePrizePresent, rulePrizeDismiss] = useIonModal(RulePrize, {
-        onDismiss: (data: string, role: string) => rulePrizeDismiss(data, role),
-        switchTab: (tabName: string) => setTabName(tabName),
-        tabName: tabName
+      onDismiss: (data: string, role: string) => rulePrizeDismiss(data, role),
+      switchTab: (tabName: string) => setTabName(tabName),
+      tabName: tabName,
+      luckyData: luckyData,
     });
     const [winningPresent, winningDismiss, ] = useIonModal(Winning, {
         onDismiss: (data: string, role: string) => winningDismiss(data, role),
@@ -157,8 +166,6 @@ const Lucky: React.FC = () => {
         setTabName(tabName)
         rulePrizePresent({
             id: style.rulePrizeModal,
-            initialBreakpoint: 0.85,
-            breakpoints: [0,0.85],
             onWillDismiss: (ev: CustomEvent<OverlayEventDetail>) => {},
         });
     }

@@ -26,10 +26,6 @@ const Fail = ({onDismiss,}: {
         <div className={style.footer}>
           <div className={style.btn}>
             <button onClick={() => onDismiss(null, 'cancel')}>再玩一次</button>
-            <button
-                className={style.style2}
-                onClick={() => onDismiss(null, 'cancel')}
-            >马上关注</button>
           </div>
         </div>
       </div>

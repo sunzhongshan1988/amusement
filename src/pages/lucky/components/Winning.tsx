@@ -28,7 +28,6 @@ const Winning =  ({onDismiss,}: {
               </div>
               <div className={style.btn2}>
                 <button onClick={() => onDismiss(null, 'cancel')}>再玩一次</button>
-                <button onClick={() => onDismiss(null, 'cancel')}>马上关注</button>
               </div>
             </div>
          </div>

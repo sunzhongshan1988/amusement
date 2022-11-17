@@ -15,8 +15,10 @@ ion-modal#winningFailModal::part(content){
 }
 
 ion-modal#rulePrizeModal{
-    --border-radius: 16px;
-    --backdrop-opacity: 0.6;
+    --height: 85%;
+    --min-height: 420px;
+    --border-radius: 16px 16px 0 0;
+    align-items: flex-end;
     --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 

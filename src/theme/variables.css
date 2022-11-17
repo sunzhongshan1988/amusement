@@ -100,6 +100,25 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-step-850: #262626;
   --ion-color-step-900: #191919;
   --ion-color-step-950: #0d0d0d;
+
+  --ion-card-background: #ffffff;
+
+  /** utils **/
+  --ion-padding-xs: 4px;
+  --ion-padding-sm: 8px;
+  --ion-padding-md: 12px;
+  --ion-padding-lg: 16px;
+
+  --ion-margin-xs: 4px;
+  --ion-margin-sm: 8px;
+  --ion-margin-md: 12px;
+  --ion-margin-lg: 16px;
+
+
+  --ion-border-radius-xs: 2px;
+  --ion-border-radius-sm: 4px;
+  --ion-border-radius-md: 8px;
+  --ion-border-radius-lg: 16px;
 }
 
 @media (prefers-color-scheme: dark) {
