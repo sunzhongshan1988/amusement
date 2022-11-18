@@ -25,7 +25,7 @@ const Fail = ({onDismiss,}: {
         </div>
         <div className={style.footer}>
           <div className={style.btn}>
-            <button onClick={() => onDismiss(null, 'cancel')}>再玩一次</button>
+            <button onClick={() => onDismiss(null, 'again')}>再玩一次</button>
           </div>
         </div>
       </div>

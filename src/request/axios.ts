@@ -51,6 +51,8 @@ instance.interceptors.request.use(
         token: userInfo?.token || '',
         tenantId: extraData?.tenantId || '',
         openId: userInfo?.openId || '',
+        userName: userInfo?.nickName || '',
+        avatarUrl: userInfo?.avatarUrl || '',
         ...config.data
       },
       timeStamp: Date.now(),

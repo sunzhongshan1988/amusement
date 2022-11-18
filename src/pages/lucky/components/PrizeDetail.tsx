@@ -3,7 +3,9 @@ import style from './PrizeDetail.module.scss'
 import qrcode from '../images/qrcode.png'
 import {IonButtons,IonButton, IonContent, IonIcon, IonToolbar} from '@ionic/react';
 import {closeOutline} from 'ionicons/icons';
-const PrizeDetail = ({onDismiss,}: {
+import moment from 'moment';
+const PrizeDetail = ({onDismiss, prize}: {
+  prize: any;
   onDismiss: (data?: string | null | undefined | number, role?: string) => void;
 }) => {
 
@@ -19,9 +21,9 @@ const PrizeDetail = ({onDismiss,}: {
 
           <div className={style.container}>
             <div className={style.prize}>
-              <div>一等奖</div>
+              <div>{prize?.level}</div>
               <div className={style.name}>
-                200元现金红包
+                {prize?.name}
               </div>
             </div>
             <div className={style.detail}>
@@ -38,15 +40,15 @@ const PrizeDetail = ({onDismiss,}: {
               </div>
               <div className={style.item}>
                 <div className={style.name}>兑奖期限</div>
-                <div className={style.content}>2022-08-02 11:24 至 2022-08-09 11:24</div>
+                <div className={style.content}>{moment(prize?.redeemExpirationEnd).format('yyyy-MM-dd HH:mm:ss')} 至 {moment(prize?.redeemExpirationStart).format('yyyy-MM-dd HH:mm:ss')}</div>
               </div>
               <div className={style.item}>
                 <div className={style.name}>兑奖地址</div>
-                <div className={style.content}>上海时区</div>
+                <div className={style.content}>{prize?.redeemAddress}</div>
               </div>
               <div className={style.item}>
                 <div className={style.name}>兑奖须知</div>
-                <div className={style.content}>请保证获奖数据真实有效</div>
+                <div className={style.content}>{prize?.redeemNote}</div>
               </div>
             </div>
           </div>

@@ -1,8 +1,8 @@
-import {IonContent, IonPage, useIonModal, useIonViewWillEnter} from '@ionic/react';
+import {IonContent, IonPage, useIonAlert, useIonModal, useIonViewWillEnter} from '@ionic/react';
 import style from './Lucky.module.scss';
 // @ts-ignore
 import {LuckyWheel} from '@lucky-canvas/react'
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {LuckyDemo, LuckySchemaContext} from './schema';
 import RulePrize from './components/RulePrize';
 import Winning from './components/Winning';
@@ -10,28 +10,46 @@ import {OverlayEventDetail} from '@ionic/react/dist/types/components/react-compo
 import PrizeDetail from './components/PrizeDetail';
 import Fail from './components/Fail';
 import {luckyWheelGet, luckyWheelPlay} from '../../service/lucky';
-import {useQuery} from '../../hooks';
+import {useQuery, useWindowSize} from '../../hooks';
 
 
 //
 interface Props {
-    zoomRate: number;
-    onWinning: () => void;
-    onFail: () => void;
+  init: number
+  zoomRate: number;
+  onWinning: (index: number) => void;
+  onFail: () => void;
 }
 
 const Wheel: React.FC<Props> = (props) => {
+
+  const query = useQuery();
+  const [presentAlert] = useIonAlert();
+
     const {lucky, setLucky} = React.useContext<any>(LuckySchemaContext);
     const myLucky = useRef<any>()
 
-  const query = useQuery();
-
     const startAudio = new Audio(lucky.home.wheel.extraConfig.gameStart.audio);
     const endAudio = new Audio(lucky.home.wheel.extraConfig.gameEnd.audio);
-    const startAudioStop = () => {
+
+  let allPrizes = lucky.home.wheel.prizes.map((item: any, index: number) => {
+    return {
+      index: index,
+      noPrize: item.noPrize,
+    }
+  });
+  let prizes = allPrizes.filter((item: any) => item.noPrize === false);
+  let noPrizes = allPrizes.filter((item: any) => item.noPrize === true);
+
+
+  const startAudioStop = () => {
         startAudio.pause();
         startAudio.currentTime = 0;
     }
+
+    useEffect(() => {
+      myLucky.current?.init()
+    }, [props.init])
 
     React.useEffect(() => {
         startAudio.load();
@@ -40,25 +58,34 @@ const Wheel: React.FC<Props> = (props) => {
     }, [])
 
     const onStart = () => { // 点击抽奖按钮会触发star回调
-      myLucky.current?.play()
-      // Play start audio
-      startAudio.play()
-
       luckyWheelPlay({id: query.get('amusementId')}).then((res) => {
-        console.log(res)
-      })
+        if (res.success) {
+          myLucky.current?.play()
+          // Play start audio
+          startAudio.play();
+          setTimeout(() => {
+            if (res.data === 99) {
+              myLucky.current?.stop(noPrizes[0].index)
+            } else {
+              myLucky.current?.stop(prizes[res.data - 1].index)
+            }
 
-      setTimeout(() => {
-          const index = Math.random() * 4 >> 0
-          myLucky.current?.stop(index)
-      }, 2500)
+          }, 2500)
+        } else {
+          presentAlert({
+            header: '提示',
+            subHeader: '',
+            message: res.showMsg,
+            buttons: ['OK'],
+          })
+        }
+      })
     }
     const onEnd = (prize: any) => { // 抽奖结束会触发end回调
-       Math.random() > 0.5
-           ? props.onWinning() : props.onFail()
-        // Stop start audio and play end audio
-        startAudioStop()
-        endAudio.play()
+      prize.index === 99 ? props.onFail() : props.onWinning(prize.index)
+      // Stop start audio and play end audio
+      startAudioStop()
+      endAudio.play()
     }
 
     return (
@@ -84,17 +111,19 @@ const Lucky: React.FC = () => {
 
   const [luckyData, setLuckyData] = useState<any>({})
 
+  const [currentPrize, setCurrentPrize] = useState<any>({})
+  const [initWheel, setInitWheel] = useState<number>(0)
+
     const [zoomRate, setZoomRate] = React.useState(window.innerWidth / lucky.baseSize);
-    const [maxHeight, setMaxHeight] = React.useState(window.innerHeight);
+    const [minHeight, setMinHeight] = React.useState(window.innerHeight);
+    const [height, setHeight] = React.useState(window.innerHeight);
 
     // Audio
     const [isPlaying, setIsPlaying] = React.useState(false);
     const bgAudio = new Audio(lucky.home.background.music.src);
 
     let params = useQuery();
-    React.useEffect(() => {
-
-    }, [])
+    let size = useWindowSize();
 
   useIonViewWillEnter(() => {
     if (params.get('amusementId')) {
@@ -105,6 +134,16 @@ const Lucky: React.FC = () => {
       })
     }
   });
+
+  useEffect(() => {
+    // Handle the change of window size,
+    // this is just to observe the page effect under different devices.
+    setZoomRate(window.innerWidth / lucky.baseSize);
+    resizeWheelPadding()
+    setMinHeight(getMaxHeight() as number * zoomRate + 16)
+    setHeight(window.innerHeight)
+  }, [size.width, size.height])
+
 
     const playBgAudio = async () => {
         await bgAudio.play();
@@ -125,29 +164,17 @@ const Lucky: React.FC = () => {
       luckyData: luckyData,
     });
     const [winningPresent, winningDismiss, ] = useIonModal(Winning, {
-        onDismiss: (data: string, role: string) => winningDismiss(data, role),
+      prize: currentPrize,
+      onDismiss: (data: string, role: string) => winningDismiss(data, role),
     });
     const [failPresent, failDismiss, ] = useIonModal(Fail, {
         onDismiss: (data: string, role: string) => failDismiss(data, role),
     });
     const [detailPresent, detailDismiss, ] = useIonModal(PrizeDetail, {
-        onDismiss: (data: string, role: string) => detailDismiss(data, role),
+      prize: currentPrize,
+      onDismiss: (data: string, role: string) => detailDismiss(data, role),
     });
 
-    React.useEffect(() => {
-      window.addEventListener('resize', resizeHandle);
-      return () => {
-          window.removeEventListener('resize', resizeHandle)
-      }
-    }, [])
-
-    // Handle the change of window size,
-    // this is just to observe the page effect under different devices.
-    const resizeHandle = () => {
-      setZoomRate(window.innerWidth / lucky.baseSize);
-      resizeWheelPadding()
-      setMaxHeight(getMaxHeight() as number)
-    }
     const resizeWheelPadding = () => {
         lucky.home.wheel.blocks.forEach((block: any) => {
             // The border needs to adapt to the size of the wheel
@@ -172,27 +199,39 @@ const Lucky: React.FC = () => {
     }
 
     // Open winning modal
-    function openWinning() {
-        winningPresent({
-            id: style.winningFailModal,
-            onWillDismiss: (ev: CustomEvent<OverlayEventDetail>) => {
-                if (ev.detail.role === 'detail') {
-                    openDetail()
-                }
-            },
-        });
+    function openWinning(index: number) {
+      setCurrentPrize(luckyData.prize.filter((item: any) => item.index === index)[0])
+      winningPresent({
+          id: style.winningFailModal,
+          onWillDismiss: (ev: CustomEvent<OverlayEventDetail>) => {
+              if (ev.detail.role === 'detail') {
+                  openDetail()
+              }
+              if (ev.detail.role === 'again') {
+                setInitWheel(new Date().getTime())
+              }
+          },
+      });
     }
     // Open fail modal
     function openFail() {
         failPresent({
             id: style.winningFailModal,
-            onWillDismiss: (ev: CustomEvent<OverlayEventDetail>) => {},
+            onWillDismiss: (ev: CustomEvent<OverlayEventDetail>) => {
+              if (ev.detail.role === 'again') {
+                setInitWheel(new Date().getTime())
+              }
+            },
         });
     }
     // Open detail modal
     function openDetail() {
         detailPresent({
-            onWillDismiss: (ev: CustomEvent<OverlayEventDetail>) => {},
+            onWillDismiss: (ev: CustomEvent<OverlayEventDetail>) => {
+              if (ev.detail.role === 'cancel') {
+                setInitWheel(new Date().getTime())
+              }
+            },
         });
     }
 
@@ -206,8 +245,9 @@ const Lucky: React.FC = () => {
                 <div // Background
                     className={style.bg}
                     style={{
-                        backgroundImage: `url(${lucky.home.background.image})`,
-                        height: maxHeight * zoomRate + 16
+                      backgroundImage: `url(${lucky.home.background.image})`,
+                      height: height,
+                      minHeight: minHeight
                     }}
                 >
                 </div>
@@ -245,6 +285,7 @@ const Lucky: React.FC = () => {
                         }}
                     >
                       <Wheel
+                        init={initWheel}
                         zoomRate={zoomRate}
                         onWinning={openWinning}
                         onFail={openFail}

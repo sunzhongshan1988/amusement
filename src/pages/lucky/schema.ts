@@ -67,6 +67,7 @@ export const LuckyDemo = {
         noPrize: {
           range: [],
           noPrize: true,
+          index: 99,
           imgs: [
             {
               src: 'https://static.qunkong.jniu.com/test-frontend/lucky-wheel/noPrize.png',
@@ -79,6 +80,7 @@ export const LuckyDemo = {
           {
             range: [],
             noPrize: false,
+            index: 0,
             imgs: [
               {
                 src: 'https://static.qunkong.jniu.com/test-frontend/lucky-wheel/prize.png',
@@ -105,23 +107,6 @@ export const LuckyDemo = {
       fontSize: 14,
       text: '累计0人次参与',
     }
-  },
-  config:{
-    base: {},
-    prize: [
-      {
-        level: '一等奖',
-        type: 'gift', // gift, coupon
-        name: '100元现金红包',
-        count: 1,
-        redeem: 'offline', // offline, online
-        address: '', // Address to redeem the prize
-        dateRange: [], // Date range to redeem the prize
-        notice: '请保证获奖数据真实有效', // Description of the prize
-      }
-    ],
-    rule: {},
-    share: {},
   }
 }
 export const LuckySchemaContext: any = React.createContext({});

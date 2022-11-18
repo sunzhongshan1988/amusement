@@ -1,9 +1,9 @@
 import axios from '../request/axios'
 
-/** 查询一个抽奖接口 POST /admin/assessment2/assessment2/interaction-games/get */
+/** 查询一个抽奖接口 POST /admin/assessment2/assessment2/interaction-games/getByC */
 export async function luckyWheelGet(data: any) {
   return axios
-    .post(`/assessment/interaction-games/get`, data)
+    .post(`/assessment/interaction-games/getByC`, data)
     .then(response=> {
       if (response.data) {
         return response.data;
