@@ -305,6 +305,7 @@ const Lucky: React.FC = () => {
                     </div>
                     <div // Participant
                         style={{
+                          display: 'none',
                             position: 'absolute',
                             top: lucky.home.participant.top * zoomRate,
                             left: lucky.home.participant.left * zoomRate,
