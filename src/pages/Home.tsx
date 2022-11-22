@@ -1,7 +1,12 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import {IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonViewWillEnter} from '@ionic/react';
 import './Home.css';
 
 const Home: React.FC = () => {
+
+  useIonViewWillEnter(() => {
+    console.log('ionViewWillEnter event fired');
+  });
+
   return (
     <IonPage>
       <IonHeader>

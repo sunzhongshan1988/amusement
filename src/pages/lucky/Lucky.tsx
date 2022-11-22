@@ -1,4 +1,10 @@
-import {IonContent, IonPage, useIonAlert, useIonModal, useIonViewWillEnter} from '@ionic/react';
+import {
+  IonContent,
+  IonPage,
+  useIonAlert,
+  useIonModal,
+  useIonViewDidEnter, useIonViewWillEnter,
+} from '@ionic/react';
 import style from './Lucky.module.scss';
 // @ts-ignore
 import {LuckyWheel} from '@lucky-canvas/react'
@@ -106,31 +112,43 @@ const Wheel: React.FC<Props> = (props) => {
 }
 
 const Lucky: React.FC = () => {
-    const LuckySchemaInstance = JSON.parse(JSON.stringify(LuckyDemo))
-    const [lucky, setLucky] = React.useState<any>(LuckySchemaInstance)
+  const LuckySchemaInstance = JSON.parse(JSON.stringify(LuckyDemo))
+  const [lucky, setLucky] = React.useState<any>(LuckySchemaInstance)
 
   const [luckyData, setLuckyData] = useState<any>({})
 
   const [currentPrize, setCurrentPrize] = useState<any>({})
   const [initWheel, setInitWheel] = useState<number>(0)
 
-    const [zoomRate, setZoomRate] = React.useState(window.innerWidth / lucky.baseSize);
-    const [minHeight, setMinHeight] = React.useState(window.innerHeight);
-    const [height, setHeight] = React.useState(window.innerHeight);
+  const [zoomRate, setZoomRate] = React.useState(window.innerWidth / lucky.baseSize);
+  const [minHeight, setMinHeight] = React.useState(window.innerHeight);
+  const [height, setHeight] = React.useState(window.innerHeight);
 
-    // Audio
-    const [isPlaying, setIsPlaying] = React.useState(false);
-    const bgAudio = new Audio(lucky.home.background.music.src);
+  // Audio
+  const [isPlaying, setIsPlaying] = React.useState(false);
+  const bgAudio = new Audio(lucky.home.background.music.src);
 
-    let params = useQuery();
-    let size = useWindowSize();
+  let params = useQuery();
+  let size = useWindowSize();
+  const [presentAlert] = useIonAlert();
 
   useIonViewWillEnter(() => {
+    console.log('useIonViewWillEnter')
     if (params.get('amusementId')) {
       luckyWheelGet({id: params.get('amusementId')}).then((res: any) => {
-        setLucky(res.data.model);
-        document.title = res.data.title;
-        setLuckyData(res.data)
+        if (res.success) {
+          setLucky(res.data.model);
+          document.title = res.data.title;
+          setLuckyData(res.data)
+        } else {
+          presentAlert({
+            header: '提示',
+            subHeader: '',
+            message: res.showMsg,
+            backdropDismiss: false,
+            buttons: [],
+          })
+        }
       })
     }
   });
