@@ -40,7 +40,7 @@ const PrizeDetail = ({onDismiss, prize}: {
               </div>
               <div className={style.item}>
                 <div className={style.name}>兑奖期限</div>
-                <div className={style.content}>{moment(prize?.redeemExpirationEnd).format('yyyy-MM-dd HH:mm:ss')} 至 {moment(prize?.redeemExpirationStart).format('yyyy-MM-dd HH:mm:ss')}</div>
+                <div className={style.content}>{moment(prize?.redeemExpirationEnd).format('yyyy-MM-DD HH:mm:ss')} 至 {moment(prize?.redeemExpirationStart).format('yyyy-MM-DD HH:mm:ss')}</div>
               </div>
               <div className={style.item}>
                 <div className={style.name}>兑奖地址</div>

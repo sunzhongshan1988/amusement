@@ -22,10 +22,10 @@ export async function luckyWheelPlay(data: any) {
     });
 }
 
-/** 中奖列表接口 POST /admin/assessment2/assessment2/interaction-prize-record/list */
-export async function luckyWheelPrizeList(data: any) {
+/** 中奖列表接口 POST /admin/assessment2/assessment2/interaction-games/getUserPrizeList */
+export async function luckyWheelUserPrizeList(data: any) {
   return axios
-    .post(`/assessment/interaction-prize-record/list`, data)
+    .post(`/assessment/interaction-games/getUserPrizeList`, data)
     .then(response=> {
       if (response.data) {
         return response.data;

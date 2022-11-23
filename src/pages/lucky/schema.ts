@@ -80,7 +80,7 @@ export const LuckyDemo = {
           {
             range: [],
             noPrize: false,
-            index: 0,
+            index: 1,
             imgs: [
               {
                 src: 'https://static.qunkong.jniu.com/test-frontend/lucky-wheel/prize.png',

@@ -2,6 +2,7 @@
   "name": "amusement",
   "version": "0.0.1",
   "private": true,
+  "homepage": "/jniu-activity-wx",
   "dependencies": {
     "@capacitor/app": "4.0.1",
     "@capacitor/core": "4.1.0",

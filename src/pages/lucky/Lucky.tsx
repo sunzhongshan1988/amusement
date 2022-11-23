@@ -174,12 +174,18 @@ const Lucky: React.FC = () => {
 
 
     // Lucky wheel modal
+  const onClickPrize = (prize: any) => {
+    setCurrentPrize(prize)
+    openDetail()
+  }
     const [tabName, setTabName] = useState('');
     const [rulePrizePresent, rulePrizeDismiss] = useIonModal(RulePrize, {
       onDismiss: (data: string, role: string) => rulePrizeDismiss(data, role),
       switchTab: (tabName: string) => setTabName(tabName),
       tabName: tabName,
       luckyData: luckyData,
+      amusementId: params.get('amusementId'),
+      onClickPrize: onClickPrize
     });
     const [winningPresent, winningDismiss, ] = useIonModal(Winning, {
       prize: currentPrize,
