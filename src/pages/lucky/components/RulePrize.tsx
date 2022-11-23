@@ -31,7 +31,7 @@ const RulePrize =  ({onDismiss, switchTab, tabName,  luckyData, amusementId, onC
     }
   }, [tabName])
 
-  const ruleBlock = <div>
+  const ruleBlock = <div className={style.scrollList}>
     <div className={style.block}>
       <div className={style.title}>互动奖品</div>
       <div>
@@ -66,7 +66,7 @@ const RulePrize =  ({onDismiss, switchTab, tabName,  luckyData, amusementId, onC
     </div>
   </div>
 
-  const myPrizeBlock = <div>
+  const myPrizeBlock = <div className={style.scrollList}>
     <div className={style.block}>
       <div className={style.title}></div>
         {prizeList && prizeList.map((item: any, index: number) =>

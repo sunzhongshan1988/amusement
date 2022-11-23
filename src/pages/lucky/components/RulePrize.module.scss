@@ -3,9 +3,10 @@
   position: relative;
   width: 100%;
   height: calc(100% - 24px);
-
   border-radius: 8px 8px 0 0;
   .content {
+    height: 100%;
+    overflow-y: hidden;
     padding: 24px;
     .close {
       position: absolute;
@@ -68,6 +69,10 @@
           }
         }
       }
+    }
+    .scrollList {
+      height: 100%;
+      overflow-y: auto;
     }
   }
 }
