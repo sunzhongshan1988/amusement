@@ -229,7 +229,7 @@ const Lucky: React.FC = () => {
           id: style.winningFailModal,
           onWillDismiss: (ev: CustomEvent<OverlayEventDetail>) => {
               if (ev.detail.role === 'detail') {
-                  openDetail()
+                openRulePrize('prize')
               }
               if (ev.detail.role === 'again') {
                 setInitWheel(new Date().getTime())

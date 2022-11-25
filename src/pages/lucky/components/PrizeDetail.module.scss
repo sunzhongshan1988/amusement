@@ -43,6 +43,7 @@ ion-toolbar#toolBar {
       padding-top: 12px;
       display: flex;
       justify-content: flex-start;
+      align-items: center;
       .name {
         min-width: 84px;
         color: var(--ion-color-step-400);
