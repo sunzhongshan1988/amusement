@@ -7,6 +7,18 @@ export const StorageKey = {
   extraData: `${REACT_APP_SUB_PATH}_extraData`,
 }
 
+export function guid(split = '') {
+  let guid = '';
+  for (let i = 1; i <= 32; i++) {
+    const n = Math.floor(Math.random() * 16.0).toString(16);
+    guid += n;
+    if (i === 8 || i === 12 || i === 16 || i === 20) {
+      guid += split;
+    }
+  }
+  return guid;
+}
+
 export function  isAndroidOrIOS() {
   let u = navigator.userAgent;
   let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端

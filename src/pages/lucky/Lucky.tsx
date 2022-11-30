@@ -18,8 +18,9 @@ import Fail from './components/Fail';
 import {luckyWheelGet, luckyWheelPlay} from '../../service/lucky';
 import {useQuery, useWindowSize} from '../../hooks';
 import {addInteractRecord} from '../../service/customerTool';
-import {getExtraData, getUserInfo} from '../../service/utils';
+import {getExtraData, getUserInfo, guid} from '../../service/utils';
 
+const customerReadGuid = guid();
 
 //
 interface Props {
@@ -87,6 +88,8 @@ const Wheel: React.FC<Props> = (props) => {
         // visitorExternalUserid: '',
         visitorPhone: userInfo.phone,
         superiorOpenId: query.get('superiorOpenId'),
+        customerReadGuid: customerReadGuid,
+        rootGuid: query.get('rootGuid'),
       };
       addInteractRecord(params).then((res: any) => {
 
