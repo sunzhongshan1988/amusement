@@ -12,14 +12,25 @@ const instance = axios.create({
   }
 });
 
-const adminSignKV = {
+const tenantSignKV = {
   dev: 'f417718d1eef3dcaae6e0e06e294c760',
   test: 'f417718d1eef3dcaae6e0e06e294c760',
   prod: '30b877a8e7b9d00e603c20c4cffb043c'
 }
+const customerSignKV = {
+  dev: 'e62f2d023cd428bea303c488880d85da',
+  test: 'e62f2d023cd428bea303c488880d85da',
+  prod: 'cf53933467389a55ad5def2c5c86d3fd'
+}
 //
-const getSign = (params: any, env: 'dev' | 'test'| 'prod') => {
-  const signKey = env ? adminSignKV[env] : adminSignKV['dev'];
+const getSign = (params: any, env: 'dev' | 'test'| 'prod', gateway: 'tenant' | 'customer') => {
+  let signKey = '';
+  if (gateway === 'tenant') {
+    signKey = env ? tenantSignKV[env] : tenantSignKV['dev'];
+  } else {
+    signKey = env ? customerSignKV[env] : customerSignKV['dev'];
+  }
+
   let signParams: string[] = [];
   const paramsObj = Object.assign({}, params.baseParams, params.signParams);
   Object.keys(paramsObj).sort().forEach((key) => {
@@ -59,7 +70,12 @@ instance.interceptors.request.use(
       sign:""
     }
 
-    payload.sign = getSign(payload, REACT_APP_ENV as any);
+    if (url?.match(/^\/tenant\//)) {
+      payload.sign = getSign(payload, REACT_APP_ENV as any, 'tenant');
+    } else {
+      payload.sign = getSign(payload, REACT_APP_ENV as any, 'customer');
+    }
+
     config.data = payload;
 
     return { ...config, url };

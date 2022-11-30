@@ -17,11 +17,14 @@ import PrizeDetail from './components/PrizeDetail';
 import Fail from './components/Fail';
 import {luckyWheelGet, luckyWheelPlay} from '../../service/lucky';
 import {useQuery, useWindowSize} from '../../hooks';
+import {addInteractRecord} from '../../service/customerTool';
+import {getExtraData, getUserInfo} from '../../service/utils';
 
 
 //
 interface Props {
   init: number
+  luckyData: any
   zoomRate: number;
   onWinning: (index: number) => void;
   onFail: () => void;
@@ -63,12 +66,43 @@ const Wheel: React.FC<Props> = (props) => {
 
     }, [])
 
+    function uploadInteractRecord () {
+      let extra = getExtraData();
+      let userInfo = getUserInfo();
+      let params = {
+        tenantId: query.get('tenantId'),
+        corpId: extra.appId,
+        recordType: 14,
+        recordCode: props.luckyData.id,
+        recordName: props.luckyData.title,
+        // recordTagCode: '',
+        recordTagName: '',
+        uniqueKey: query.get('uniqueKey'),
+        userId: query.get('userId'),
+        recordTypeExt: 'Cjhd', //抽奖活动 Cjhd
+        visitorOpenId: userInfo.openId,
+        visitorNickname: userInfo.nickName,
+        visitorUnionId: userInfo.unionId,
+        visitorPortraitUrl: userInfo.avatarUrl,
+        // visitorExternalUserid: '',
+        visitorPhone: userInfo.phone,
+        superiorOpenId: query.get('superiorOpenId'),
+      };
+      addInteractRecord(params).then((res: any) => {
+
+      })
+    }
+
     const onStart = () => { // 点击抽奖按钮会触发star回调
       luckyWheelPlay({id: query.get('amusementId')}).then((res) => {
         if (res.success) {
           myLucky.current?.play()
           // Play start audio
           startAudio.play();
+
+          // Add interact record
+          uploadInteractRecord();
+
           setTimeout(() => {
             if (res.data === 99) {
               myLucky.current?.stop(noPrizes[0].index)
@@ -133,8 +167,7 @@ const Lucky: React.FC = () => {
   const [presentAlert] = useIonAlert();
 
   useIonViewWillEnter(() => {
-    console.log('useIonViewWillEnter')
-    if (params.get('amusementId')) {
+    if (params.get('amusementId') && params.get('userId')) {
       luckyWheelGet({id: params.get('amusementId')}).then((res: any) => {
         if (res.success) {
           setLucky(res.data.model);
@@ -149,6 +182,14 @@ const Lucky: React.FC = () => {
             buttons: [],
           })
         }
+      })
+    } else {
+      presentAlert({
+        header: '提示',
+        subHeader: '',
+        message: '请通过正确的渠道进入',
+        backdropDismiss: false,
+        buttons: [],
       })
     }
   });
@@ -310,6 +351,7 @@ const Lucky: React.FC = () => {
                     >
                       <Wheel
                         init={initWheel}
+                        luckyData={luckyData}
                         zoomRate={zoomRate}
                         onWinning={openWinning}
                         onFail={openFail}
