@@ -72,7 +72,7 @@ const Wheel: React.FC<Props> = (props) => {
       let userInfo = getUserInfo();
       let params = {
         tenantId: query.get('tenantId'),
-        corpId: extra.appId,
+        corpId: query.get('corpId'),
         recordType: 14,
         recordCode: props.luckyData.id,
         recordName: props.luckyData.title,
