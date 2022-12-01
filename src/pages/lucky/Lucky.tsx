@@ -67,8 +67,9 @@ const Wheel: React.FC<Props> = (props) => {
 
     }, [])
 
-    function uploadInteractRecord () {
-      let extra = getExtraData();
+    function uploadInteractRecord(prizeIndex: number) {
+      let prize = props.luckyData.prize.filter((item: any) => item.index === prizeIndex);
+
       let userInfo = getUserInfo();
       let params = {
         tenantId: query.get('tenantId'),
@@ -78,6 +79,7 @@ const Wheel: React.FC<Props> = (props) => {
         recordName: props.luckyData.title,
         // recordTagCode: '',
         recordTagName: '',
+        recordMsg: prize.length === 0 ? '未中奖' : prize[0].level,
         uniqueKey: query.get('uniqueKey'),
         userId: query.get('userId'),
         recordTypeExt: 'Cjhd', //抽奖活动 Cjhd
@@ -104,7 +106,7 @@ const Wheel: React.FC<Props> = (props) => {
           startAudio.play();
 
           // Add interact record
-          uploadInteractRecord();
+          uploadInteractRecord(res.data);
 
           setTimeout(() => {
             if (res.data === 99) {
