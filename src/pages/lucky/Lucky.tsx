@@ -25,9 +25,10 @@ const customerReadGuid = guid();
 //
 interface Props {
   init: number
+  again: number
   luckyData: any
   zoomRate: number;
-  onWinning: (index: number) => void;
+  onWinning: (prize: any) => void;
   onFail: () => void;
 }
 
@@ -36,11 +37,13 @@ const Wheel: React.FC<Props> = (props) => {
   const query = useQuery();
   const [presentAlert] = useIonAlert();
 
-    const {lucky, setLucky} = React.useContext<any>(LuckySchemaContext);
-    const myLucky = useRef<any>()
+  const {lucky, setLucky} = React.useContext<any>(LuckySchemaContext);
+  const myLucky = useRef<any>()
 
-    const startAudio = new Audio(lucky.home.wheel.extraConfig.gameStart.audio);
-    const endAudio = new Audio(lucky.home.wheel.extraConfig.gameEnd.audio);
+  const [playResult, setPlayResult] = useState<any>(null);
+
+  const startAudio = new Audio(lucky.home.wheel.extraConfig.gameStart.audio);
+  const endAudio = new Audio(lucky.home.wheel.extraConfig.gameEnd.audio);
 
   let allPrizes = lucky.home.wheel.prizes.map((item: any, index: number) => {
     return {
@@ -60,6 +63,10 @@ const Wheel: React.FC<Props> = (props) => {
     useEffect(() => {
       myLucky.current?.init()
     }, [props.init])
+
+    useEffect(() => {
+      props.again !== 0 && onStart()
+    }, [props.again])
 
     React.useEffect(() => {
         startAudio.load();
@@ -107,15 +114,15 @@ const Wheel: React.FC<Props> = (props) => {
           startAudio.play();
 
           // Add interact record
-          uploadInteractRecord(res.data);
+          uploadInteractRecord(res.data.index);
 
           setTimeout(() => {
-            if (res.data === 99) {
+            if (res.data.index === 99) {
               myLucky.current?.stop(noPrizes[0].index)
             } else {
-              myLucky.current?.stop(prizes[res.data - 1].index)
+              myLucky.current?.stop(prizes[res.data.index - 1].index)
             }
-
+            setPlayResult(res.data.prizeInfo);
           }, 2500)
         } else {
           presentAlert({
@@ -128,7 +135,7 @@ const Wheel: React.FC<Props> = (props) => {
       })
     }
     const onEnd = (prize: any) => { // 抽奖结束会触发end回调
-      prize.index === 99 ? props.onFail() : props.onWinning(prize.index)
+      prize.index === 99 ? props.onFail() : props.onWinning(playResult);
       // Stop start audio and play end audio
       startAudioStop()
       endAudio.play()
@@ -159,6 +166,7 @@ const Lucky: React.FC = () => {
 
   const [currentPrize, setCurrentPrize] = useState<any>({})
   const [initWheel, setInitWheel] = useState<number>(0)
+  const [againLucky, setAgainLucky] = useState<number>(0)
 
   const [zoomRate, setZoomRate] = React.useState(window.innerWidth / lucky.baseSize);
   const [minHeight, setMinHeight] = React.useState(window.innerHeight);
@@ -270,16 +278,16 @@ const Lucky: React.FC = () => {
     }
 
     // Open winning modal
-    function openWinning(index: number) {
-      setCurrentPrize(luckyData.prize.filter((item: any) => item.index === index)[0])
+    function openWinning(prize: any) {
+      setCurrentPrize(prize)
       winningPresent({
           id: style.winningFailModal,
           onWillDismiss: (ev: CustomEvent<OverlayEventDetail>) => {
               if (ev.detail.role === 'detail') {
-                openRulePrize('prize')
+                openDetail()
               }
               if (ev.detail.role === 'again') {
-                setInitWheel(new Date().getTime())
+                setAgainLucky(new Date().getTime())
               }
           },
       });
@@ -290,7 +298,7 @@ const Lucky: React.FC = () => {
             id: style.winningFailModal,
             onWillDismiss: (ev: CustomEvent<OverlayEventDetail>) => {
               if (ev.detail.role === 'again') {
-                setInitWheel(new Date().getTime())
+                setAgainLucky(new Date().getTime())
               }
             },
         });
@@ -357,6 +365,7 @@ const Lucky: React.FC = () => {
                     >
                       <Wheel
                         init={initWheel}
+                        again={againLucky}
                         luckyData={luckyData}
                         zoomRate={zoomRate}
                         onWinning={openWinning}
