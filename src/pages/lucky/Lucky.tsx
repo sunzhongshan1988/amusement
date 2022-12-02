@@ -74,6 +74,7 @@ const Wheel: React.FC<Props> = (props) => {
       let params = {
         tenantId: query.get('tenantId'),
         corpId: query.get('corpId'),
+        newPic: props.luckyData.shareCover,
         recordType: 14,
         recordCode: props.luckyData.id,
         recordName: props.luckyData.title,
