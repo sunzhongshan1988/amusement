@@ -166,7 +166,8 @@ export function ConfigEnvDiff(config: TypeConfigEnvDiff) {
         "unionId":"ojhP6w4ZUob2d0jsk8eGo2udM3EE",
         "tenantId":null,
         "uniqueKey":null,
-        "agentName":null
+        "agentName":null,
+        "is_snapshotuser": null,
       })
     );
   }

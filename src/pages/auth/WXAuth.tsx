@@ -2,8 +2,10 @@ import { IonPage, useIonViewWillEnter} from '@ionic/react';
 import React from 'react';
 import {codeToAccessToken, saveUserInfo} from '../../service/auth';
 import {getExtraData, goTo404, setUserinfo} from '../../service/utils';
+import useAuth from '../../hooks/useAuth';
 
 const WXAuth: React.FC = () => {
+  const { setUserState } = useAuth();
   const params = new URLSearchParams(window.location.search);
   let extraData = getExtraData();
   console.log('extraData', extraData);
@@ -40,6 +42,7 @@ const WXAuth: React.FC = () => {
         if (res.success && res.data.userInfo) {
           await saveUserToServer(res.data.userInfo);
           await setUserinfo(res.data.userInfo);
+          setUserState(res.data.userInfo);
 
           // if (params.get('step') || params.get('answerId')) {
           //   history.replace({
