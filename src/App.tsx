@@ -10,7 +10,6 @@ import './global.scss';
 import {checkParamsAndAuth, ConfigEnvDiff} from './service/utils';
 import WXAuth from './pages/auth/WXAuth';
 import Fault404Page from './pages/faults/404';
-import FullScreenTips from './components/tips/FullScreenTips';
 import {AuthProvider} from './hooks/useAuth';
 
 const {REACT_APP_SUB_PATH} = process.env;

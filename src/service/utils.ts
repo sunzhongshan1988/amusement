@@ -65,22 +65,20 @@ export function setUserinfo(userInfo: any) {
   localStorage.setItem(StorageKey.userInfo, JSON.stringify(userInfo));
 }
 
+export function removeUserInfo() {
+  localStorage.removeItem(StorageKey.userInfo);
+}
+
 export function getExtraData() {
   return JSON.parse(localStorage.getItem(StorageKey.extraData) || '{}');
 }
 
-// 本地存储中是否存在用户信息
-export function isUserInfo() {
-  return !!localStorage.getItem(StorageKey.userInfo);
-}
-
-// 本地存储中是否存在微信公众号信息
-export function isExtraData() {
-  return !!localStorage.getItem(StorageKey.extraData);
+export function setExtraData(data: any) {
+  localStorage.setItem(StorageKey.extraData, JSON.stringify(data));
 }
 
 export function getCommonSearch() {
-  let extraData = JSON.parse(localStorage.getItem(StorageKey.extraData) || '{}');
+  let extraData = getExtraData();
   return `?tenantId=${extraData?.tenantId}`;
 }
 
@@ -88,7 +86,7 @@ export function getCommonSearch() {
 export async function checkAuthAndNext() {
   if (window.location.pathname !== `/${REACT_APP_SUB_PATH}/auth`) {
     console.log('No user info, redirect to auth');
-    await window.location.replace(`/${REACT_APP_SUB_PATH}/auth${window.location.search}`);
+    await window.location.replace(`/${REACT_APP_SUB_PATH}/auth${window.location.search}&rUrl=${encodeURIComponent(window.location.href)}`);
   }
 }
 
@@ -99,7 +97,7 @@ export function goTo404(msg = '暂无错误信息') {
   }
 }
 
-export function checkParamsAndAuth() {
+export async function checkParamsAndAuth() {
 
   if (window.location.pathname === `/${REACT_APP_SUB_PATH}/auth`
       || window.location.pathname === `/${REACT_APP_SUB_PATH}/404`
@@ -107,12 +105,10 @@ export function checkParamsAndAuth() {
     return
   }
 
-  localStorage.setItem('redirectUrl', window.location.href); // Save current url
-
   const params = new URLSearchParams(document.location.search);
 
   let extraData = {
-    tenantId: params.get('tenantId'),
+    tenantId: await params.get('tenantId'),
   }
 
   if (!extraData.tenantId) {
@@ -123,37 +119,36 @@ export function checkParamsAndAuth() {
 
   console.log('extraData', extraData);
 
-  let lsExtraData = getExtraData();
+  let lsExtraData =await getExtraData();
 
   // If LocalStorage has extraData, compare with current extraData
   if (!lsExtraData.tenantId || extraData.tenantId !== lsExtraData.tenantId) {
     getByTenantId({tenantId: extraData.tenantId}).then(async (res: API.Response) => {
       if (res.success && res.data) {
-        await localStorage.setItem(StorageKey.extraData, JSON.stringify(Object.assign(extraData, res.data)));
-        await localStorage.removeItem(StorageKey.userInfo);
+        await setExtraData(Object.assign(extraData, res.data));
+        await removeUserInfo();
         await checkAuthAndNext();
       } else {
         goTo404('获取公司信息失败')
       }
     });
   } else {
-    if(!isUserInfo()) {
+    if(Object.keys(getUserInfo()).length === 0) {
       console.log('No user info, redirect to auth');
-      checkAuthAndNext();
+      await checkAuthAndNext();
     }
   }
 }
 
 // Testing and production environment use different config
 type TypeConfigEnvDiff = {
-  writeUserInfo: System.RuntimeEnv[];
-  activeConsole: System.RuntimeEnv[];
+  writeUserInfo?: System.RuntimeEnv[];
+  activeConsole?: System.RuntimeEnv[];
 }
 export function ConfigEnvDiff(config: TypeConfigEnvDiff) {
   // Devolopment only
-  if ( config.writeUserInfo.includes(REACT_APP_ENV as System.RuntimeEnv) && !isUserInfo()) {
-    localStorage.setItem(StorageKey.userInfo,
-      JSON.stringify({"id":746,
+  if ( config?.writeUserInfo?.includes(REACT_APP_ENV as System.RuntimeEnv) && Object.keys(getUserInfo()).length === 0) {
+    setUserinfo({"id":746,
         "wechatId":null,
         "phone":"",
         "nickName":"孙文",
@@ -168,10 +163,9 @@ export function ConfigEnvDiff(config: TypeConfigEnvDiff) {
         "uniqueKey":null,
         "agentName":null,
         "is_snapshotuser": null,
-      })
-    );
+      });
   }
-  if (config.activeConsole.includes(REACT_APP_ENV as System.RuntimeEnv)) {
+  if (config?.activeConsole?.includes(REACT_APP_ENV as System.RuntimeEnv)) {
     // Load vConsole for debug
     const VConsole = require('vconsole');
     const vConsole = new VConsole({ theme: 'light' });

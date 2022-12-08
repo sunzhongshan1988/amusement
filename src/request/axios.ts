@@ -1,6 +1,6 @@
 import axios from "axios";
 import {Md5} from 'ts-md5';
-import {getExtraData, getUserInfo} from '../service/utils';
+import {getExtraData, getUserInfo, removeUserInfo, setUserinfo} from '../service/utils';
 
 const { REACT_APP_ENV, REACT_APP_API_URL } = process.env;
 

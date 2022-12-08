@@ -1,66 +1,47 @@
 import { IonPage, useIonViewWillEnter} from '@ionic/react';
-import React from 'react';
-import {codeToAccessToken, saveUserInfo} from '../../service/auth';
+import React, {useRef} from 'react';
+import {codeToAccessToken, getByTenantId, saveUserInfo} from '../../service/auth';
 import {getExtraData, goTo404, setUserinfo} from '../../service/utils';
 import useAuth from '../../hooks/useAuth';
+import {useHistory} from 'react-router-dom';
 
 const WXAuth: React.FC = () => {
-  const { setUserState } = useAuth();
+  const {REACT_APP_SUB_PATH} = process.env;
+  const {user, extraData, setUserState } = useAuth();
   const params = new URLSearchParams(window.location.search);
-  let extraData = getExtraData();
-  console.log('extraData', extraData);
-  // useEffect(() => {
-  //   let code = params.get('code');
-  //   if (code) {
-  //     console.log('code:', code);
-  //     getUserInfo(code);
-  //     presentToast('top', 'code:' + code);// debug code
-  //   } else {
-  //     openWxAuth();
-  //     console.log('Redirect to weixin auth');
-  //   }
-  // });
+  let history = useHistory();
+
   useIonViewWillEnter( () => {
     let code = params.get('code');
     if (code) {
       console.log('code:', code);
-      code && getUserInfo(code);
+      code && getAccessToken(code);
     } else {
       openWxAuth();
       console.log('Redirect to weixin auth');
     }
-  });
+  }, []);
 
-  const getUserInfo = (code: string) => {
-    codeToAccessToken({
+  const getAccessToken = async (code: string) => {
+    await codeToAccessToken({
       code: code,
       appId: extraData.appId,
     })
       .then(async (res: API.Response) => {
         console.log('res', res);
-
         if (res.success && res.data.userInfo) {
+          await setUserState(res.data.userInfo);
           await saveUserToServer(res.data.userInfo);
           await setUserinfo(res.data.userInfo);
-          setUserState(res.data.userInfo);
-
-          // if (params.get('step') || params.get('answerId')) {
-          //   history.replace({
-          //       pathname: '/ai-diagnosis/report',
-          //       search: `?answerId=${params.get('answerId')}&step=3&tenantId=${params.get('tenantId')}`,
-          //     });
-          // } else {
-          //   history.replace({
-          //     pathname: '/ai-diagnosis/home',
-          //     search: getCommonSearch(),
-          //   });
-          // }
-          if (localStorage.getItem('redirectUrl')) {
-            window.location.replace(localStorage.getItem('redirectUrl') || '');
+          if (params.get('rUrl')) {
+            let url = new URL(params.get('rUrl') || '');
+            history.replace({
+              pathname: url.pathname.replace(`/${REACT_APP_SUB_PATH}`, ''),
+              search: url.search,
+            })
           } else {
-            goTo404('未知源页面进入');
+            goTo404('未知源页面进入'+ await localStorage.getItem('redirectUrl'));
           }
-          localStorage.removeItem('redirectUrl'); // Remove redirectUrl after use
         }
       })
       .catch(async (err: Error) => {
@@ -71,7 +52,7 @@ const WXAuth: React.FC = () => {
 
   const saveUserToServer = (userInfo: any) => {
     saveUserInfo({
-      appid: extraData.appId,
+      appid:  extraData.appId,
       openid: userInfo.openId,
       unionid: userInfo.unionId,
       phone: userInfo.phone || '',
@@ -89,7 +70,8 @@ const WXAuth: React.FC = () => {
 
   const openWxAuth = () => {
     let redirectUrl = encodeURIComponent(window.location.href);
-    let openUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${extraData.appId}&redirect_uri=${redirectUrl}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
+    // Force open snapshot page auth "&forcePopup=true&forceSnapShot=true"
+    let openUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${ extraData.appId}&redirect_uri=${redirectUrl}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
     window.location.replace(openUrl);
   }
   return (

@@ -7,13 +7,15 @@ import React, {
   useState,
 } from "react";
 import { useHistory, useLocation } from "react-router-dom";
-import {getUserInfo} from '../service/utils';
+import {getExtraData, getUserInfo} from '../service/utils';
 import FullScreenTips from '../components/tips/FullScreenTips';
+import {getByTenantId} from '../service/auth';
 
 interface AuthContextType {
   // We defined the user type in `index.d.ts`, but it's
   // a simple object with email, name and password.
   user?: any;
+  extraData?: any;
   loading: boolean;
   error?: any;
   setUserState: (user: any) => void;
@@ -29,9 +31,12 @@ type AuthProviderProps = {
 }
 export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
   const [user, setUser] = useState<any>();
+  const [extraData, setExtraData] = useState<any>();
   const [error, setError] = useState<any>();
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingInitial, setLoadingInitial] = useState<boolean>(true);
+
+  const params = new URLSearchParams(document.location.search);
   // We are using `react-router` for this example,
   // but feel free to omit this or use the
   // router of your choice.
@@ -55,10 +60,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
     //   .then((user) => setUser(user))
     //   .catch((_error) => {})
     //   .finally(() => setLoadingInitial(false));
-    let user = getUserInfo();
-    user && setUser(user);
-    setLoadingInitial(false);
-    console.log('user', user);
+    let userInfo = getUserInfo();
+    userInfo && setUser(userInfo);
+
+    getByTenantId({tenantId: params.get('tenantId')}).then(async (res: API.Response) => {
+      if (res.success && res.data) {
+        setExtraData(res.data);
+      }
+
+      setLoadingInitial(false);
+    })
+
+  // @ts-ignore
   }, []);
 
   // Flags the component loading state and posts the login
@@ -117,19 +130,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
   const memoedValue = useMemo(
     () => ({
       user,
+      extraData,
       loading,
       error,
       setUserState,
     }),
-    [user, loading, error]
+    [user,extraData, loading, error]
   );
 
   // We only want to render the underlying app after we
   // assert for the presence of a current user.
   return (
     <AuthContext.Provider value={memoedValue}>
-      {user?.is_snapshotuser === 1 && <FullScreenTips type={'wx-auth'} blur={true}/>}
       {!loadingInitial && props.children}
+      {user?.is_snapshotuser === 1 && <FullScreenTips type={'wx-auth'} blur={true}/>}
     </AuthContext.Provider>
   );
 }
